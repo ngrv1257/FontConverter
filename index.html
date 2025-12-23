@@ -74,6 +74,8 @@
 
 <!-- ===================== PASSWORD SECURITY SCREEN ===================== -->
 
+
+
 <style>
   /* Dark overlay */
   #lockScreen {
@@ -105,26 +107,22 @@
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  /* Heading */
   #lockBox h2 {
     margin-top: 0;
     font-size: 26px;
   }
 
-  /* Attempts */
   #attemptInfo {
     margin: 10px 0 18px;
     font-size: 14px;
     opacity: 0.8;
   }
 
-  /* Input wrapper */
   #keyInputBox {
     position: relative;
     width: 100%;
   }
 
-  /* Password field */
   #securityKey {
     width: 100%;
     padding: 12px 48px 12px 14px;
@@ -132,10 +130,9 @@
     border: none;
     outline: none;
     font-size: 17px;
-    box-sizing: border-box; /* IMPORTANT: prevents overflow */
+    box-sizing: border-box;
   }
 
-  /* Eye icon */
   #toggleEye {
     position: absolute;
     right: 12px;
@@ -146,7 +143,6 @@
     user-select: none;
   }
 
-  /* Unlock button */
   #unlockBtn {
     width: 100%;
     margin-top: 22px;
@@ -179,50 +175,60 @@
 </div>
 
 <script>
-  const CORRECT_KEY = "251479";
+document.addEventListener("DOMContentLoaded", () => {
+
+  const CORRECT_KEY = "N251479@";
   let attempts = 3;
 
   const lockScreen = document.getElementById("lockScreen");
-  const keyInput = document.getElementById("securityKey");
+  const keyInput   = document.getElementById("securityKey");
   const attemptInfo = document.getElementById("attemptInfo");
+  const unlockBtn = document.getElementById("unlockBtn");
+  const toggleEye = document.getElementById("toggleEye");
 
-  // Eye toggle
-  document.getElementById("toggleEye").onclick = () => {
+  // 👁 Eye toggle
+  toggleEye.onclick = () => {
     keyInput.type = keyInput.type === "text" ? "password" : "text";
   };
 
-  // Trigger unlock on ENTER
-  keyInput.addEventListener("keypress", (e) => {
+  // ✅ AUTO-UNLOCK while typing (NO click needed)
+  keyInput.addEventListener("input", () => {
+    if (keyInput.value.trim() === CORRECT_KEY) {
+      unlock(true);
+    }
+  });
+
+  // ENTER key
+  keyInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") unlock();
   });
 
-  // Unlock button
-  document.getElementById("unlockBtn").onclick = unlock;
+  // Button click
+  unlockBtn.onclick = () => unlock();
 
-  function unlock() {
+  function unlock(auto = false) {
     const val = keyInput.value.trim();
 
     if (val === CORRECT_KEY) {
-      lockScreen.style.display = "none";  // SUCCESS
+      lockScreen.style.display = "none";
       return;
     }
 
-    // WRONG PASSWORD ↓
+    if (auto) return; // don't reduce attempts while typing
+
     attempts--;
     attemptInfo.innerHTML = `You have <b>${attempts}</b> attempts remaining`;
     keyInput.value = "";
 
     if (attempts <= 0) {
-      alert("Access denied. Browser will now close this tab.");
+      alert("Access denied. Closing.");
       window.close();
-
-      // Fallback for browsers blocking close()
       location.href = "about:blank";
     }
   }
+
+});
 </script>
-
-
 
 
 
